@@ -8,14 +8,16 @@ const bodyParser = require('body-parser');
 const sequelize = require('./util/database');
 
 const cors = require('cors');
-const User = require('./models/user');
-const userRoute = require('./routes/login');
-app.use(cors());
 
+const User = require('./models/user');
+
+const userRoute = require('./routes/signupLogin');
+
+app.use(cors());
 app.use(bodyParser.json());
 
-
 app.use('/',userRoute);
+
 sequelize.sync()
 .then(result =>app.listen(4000))
 .catch(err => console.log(err));
