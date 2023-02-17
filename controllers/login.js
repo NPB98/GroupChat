@@ -21,7 +21,7 @@ const addUser = (req,res,next)=>{
         password:hash
      })
      .then((response)=>{
-        return res.status(201).json({message:"Successfully created a new user"});
+        return res.status(201).json({message:"Successfully Signed Up"});
      })
   .catch((err)=> {
      return res.status(500).json({err:"User Already Exists"});

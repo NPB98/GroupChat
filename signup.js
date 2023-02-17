@@ -15,10 +15,12 @@ var na=document.getElementById('name');
       axios.post("http://localhost:4000/user/signup",signUpDetails)
       .then((response)=>{
         if(response.status===201){
-            console.log("done");
+          alert(response.data.message);
+            //console.log("done");
           }
       })
       .catch((err)=>{
-        document.body.innerHTML+=`<div class='container'style='color:red'>${err}</div>`;
+        alert("User already exists. Please Login");
+        //document.body.innerHTML+=`<div class='container'style='color:red'>${err}</div>`;
     })
 }
