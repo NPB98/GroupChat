@@ -15,17 +15,19 @@ const addUser =async(req,res,next)=>{
       const saltRounds=10;
       bcrypt.hash(password,saltRounds,async(err,hash)=>{
       //console.log(name,email,password);
-      const response= await User.create({
+      const response=await User.create({
         name:name,
         email:email,
         phoneNumber:phoneNumber,
-        password:hash
+        password:hash,
+        isActive:'false'
      })
      //.then((response)=>{
       if(response){
          return res.status(201).json({message:"Successfully Signed Up"});
       }
       else{
+        //.catch((err)=>{
          return res.status(500).json({err:"User Already Exists"});
          }
       })
@@ -45,15 +47,20 @@ const loginUser=async(req,res,next)=>{
    const password=req.body.password;
    //console.log(email);
    const user=await User.findAll({where:{email:email}})
-   //console.log(user);
+   console.log(user);
      if(user.length>0){
        bcrypt.compare(password,user[0].password,(err,response)=>{
          if(err){
            return res.status(500).json({success:false,message:"Something went wrong"});
          }
          if(response===true){
-           return res.status(200).json({success:true, message:"User logged in successfully",token:generateAccessToken(user[0].id,user[0].name)});
-         }
+          //User.update({
+            //isActive:true,
+            //},{where:{id:user[0].dataValues.id}})
+          //.then((response)=>{
+            return res.status(200).json({success:true, message:"User logged in successfully",token:generateAccessToken(user[0].id,user[0].name)});
+          //})
+          } 
          else{
            return res.status(401).json({success:false,message:"User not authorized"});
          }

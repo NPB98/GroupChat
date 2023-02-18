@@ -10,9 +10,13 @@ var email=document.getElementById('email');
       }
       const response=await axios.post("http://localhost:4000/user/login",loginDetails)
       //.then((response)=>{
-        console.log(response);
+        //console.log(response);
         if(response.status===200){
+          //console.log('Response',response);
+          localStorage.setItem('token',response.data.token);
           alert(response.data.message);
+          window.location.href="file:///E:/Little/GroupChat/Frontend/chats.html";
+
           }
       //.catch((err)=>{
         // else{
