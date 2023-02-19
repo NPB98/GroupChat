@@ -24,26 +24,49 @@ function addMessage(e){
     })
 }
 
-window.addEventListener("DOMContentLoaded",(e)=>{
+// window.addEventListener("DOMContentLoaded",(e)=>{
+//     const token=localStorage.getItem('token');
+//     const decodedToken=parseJwt(token);
+//    // console.log(decodedToken);
+//     axios.get("http://localhost:4000/getMessages",{headers:{'Authorization':token}})
+//     .then((messages)=>{
+//         const name=decodedToken.name.split(' ');
+//         //console.log(name[0]);
+//         for(let i=0;i<messages.data.messages.length;i++){
+//             const parentNode=document.getElementById('data')
+//             const childNode=`${name[0]}: ${messages.data.messages[i].message}<br>`;
+//             parentNode.innerHTML+=childNode;
+//            // console.log(messages.data.messages[i].message);
+//         }
+//     })
+//     .catch((error)=>{
+//         console.log(error);
+//     })
+
+// })
+
+setInterval(async() =>{
+    try{
     const token=localStorage.getItem('token');
     const decodedToken=parseJwt(token);
-   // console.log(decodedToken);
-    axios.get("http://localhost:4000/getMessages",{headers:{'Authorization':token}})
-    .then((messages)=>{
+    const messages=await axios.get("http://localhost:4000/getMessages",{headers:{'Authorization':token}})
+    //.then((messages)=>{
+        if(messages){
         const name=decodedToken.name.split(' ');
         //console.log(name[0]);
+        const parentNode=document.getElementById('data');
         for(let i=0;i<messages.data.messages.length;i++){
-            const parentNode=document.getElementById('data')
             const childNode=`${name[0]}: ${messages.data.messages[i].message}<br>`;
             parentNode.innerHTML+=childNode;
-           // console.log(messages.data.messages[i].message);
+            console.log(messages.data.messages[i].message);
         }
-    })
-    .catch((error)=>{
+        parentNode.innerHTML+='<br><br>';
+    }
+}
+    catch(error){
         console.log(error);
-    })
-
-})
+    } 
+}, 1000)
 
 function parseJwt (token) {
     var base64Url = token.split('.')[1];

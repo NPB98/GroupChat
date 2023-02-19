@@ -22,7 +22,8 @@ const addMessage=async (req,res,next)=>{
 const getMessages=async(req,res,next)=>{
     try{
         const id=req.user.dataValues.id;
-    const messages=await Message.findAll({where:{userId:id}})
+    const messages=await Message.findAll()
+    console.log('Messages',messages)
     //.then((messages)=>{
         if(messages){
             return res.status(201).json({messages:messages});
