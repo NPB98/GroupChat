@@ -1,5 +1,26 @@
-//const jwt= require("jsonwebtoken");
 const msg=document.getElementById('message');
+const msgs=document.getElementById('data');
+const loggedUsers=document.getElementById('users');
+getUserName();
+function getUserName(){
+    axios.get("http://localhost:4000/getUsers")
+    .then((users)=>{
+        for(let i=0;i<users.data.users.length;i++){
+            const child=document.createElement('p');
+            child.appendChild(document.createTextNode(`${users.data.users[i].name} logged in`));
+            //child1.appendChild(document.createTextNode(`${name[0]}:${messages.data.messages[i].message}`));
+            if(i%2 === 0){
+                child.style.backgroundColor = '#ccc';
+            }else{
+                child.style.backgroundColor = '#f4f4f4';
+            }
+            loggedUsers.appendChild(child);
+        }
+    })
+    .catch((err)=>{
+        console.log(err);
+        })
+}
 
 document.addEventListener("submit",addMessage);
 
@@ -9,14 +30,17 @@ function addMessage(e){
         message:msg.value
     }
     const token=localStorage.getItem('token');
-    console.log(token);
     axios.post("http://localhost:4000/addMessages",message,{headers:{'Authorization':token}})
     .then((res)=>{
-        if(res.status===201){
-            alert(res.data.message);
-            console.log(res.config.data);
-            //showMessagesOnScreen()
+        let chatAddedToLocalStorage=JSON.parse(localStorage.getItem('chat'));
+       // console.log(chatAddedToLocalStorage);
+        if(chatAddedToLocalStorage=== null){
+            chatAddedToLocalStorage=[res.data.message];
         }
+        else{
+            chatAddedToLocalStorage.push(res.data.message);
+        }
+        localStorage.setItem('chat',JSON.stringify(chatAddedToLocalStorage));
     })
     .catch((err)=>{
         console.log(err);
@@ -42,31 +66,90 @@ function addMessage(e){
 //     .catch((error)=>{
 //         console.log(error);
 //     })
-
 // })
 
-setInterval(async() =>{
-    try{
-    const token=localStorage.getItem('token');
+// setInterval(async() =>{
+//     try{
+//         msgs.innerHTML = '';
+//     const token=localStorage.getItem('token');
+//     const decodedToken=parseJwt(token);
+//     const messages=await axios.get("http://localhost:4000/getMessages",{headers:{'Authorization':token}})
+//     //.then((messages)=>{
+//         if(messages){
+//         const name=decodedToken.name.split(' ');
+//         for(let i=0;i<messages.data.messages.length;i++){
+//             const child1=document.createElement('p');
+//             child1.appendChild(document.createTextNode(`${name[0]}:${messages.data.messages[i].message}`));
+//             if(i%2 === 0){
+//                 child1.style.backgroundColor = '#ccc';
+//             }else{
+//                 child1.style.backgroundColor = '#f4f4f4';
+//             }
+//             msgs.appendChild(child1);
+//         }
+//     }
+// }
+//     catch(error){
+//         console.log(error);
+//     } 
+// }, 10000);
+
+window.addEventListener('DOMContentLoaded',async(e)=>{
+    e.preventDefault();
+    const token = localStorage.getItem('token');
     const decodedToken=parseJwt(token);
-    const messages=await axios.get("http://localhost:4000/getMessages",{headers:{'Authorization':token}})
-    //.then((messages)=>{
-        if(messages){
-        const name=decodedToken.name.split(' ');
-        //console.log(name[0]);
-        const parentNode=document.getElementById('data');
-        for(let i=0;i<messages.data.messages.length;i++){
-            const childNode=`${name[0]}: ${messages.data.messages[i].message}<br>`;
-            parentNode.innerHTML+=childNode;
-            console.log(messages.data.messages[i].message);
-        }
-        parentNode.innerHTML+='<br><br>';
+    const name=decodedToken.name.split(' ');
+    let chatsFromDB = 0;
+    const localMessages = JSON.parse(localStorage.getItem('chat'));
+    //console.log(localMessages);
+    if(localMessages === null){
+     chatsFromDB=await axios.get(`http://localhost:4000/getMessages?getFrom=${0}`,{ headers: {"Authorization": token}})
+     //console.log('Chatsfromdb',chatsFromDB.data.messages);
+     localStorage.setItem('chat',JSON.stringify(chatsFromDB.data.messages)  );
     }
-}
-    catch(error){
-        console.log(error);
-    } 
-}, 1000)
+    else{
+        while(localMessages.length>10){
+            localMessages.shift();
+        }
+        localStorage.setItem('chat',JSON.stringify(localMessages));
+        const getMessages = JSON.parse(localStorage.getItem('chat'));
+        let id = 0;
+        for(let i=0; i<getMessages.length; i++){
+           if(getMessages[i].id > id){
+            id = getMessages[i].id;
+           }
+        }
+        console.log(id);
+        id=id-1;
+         chatsFromDB = await axios.get(`http://localhost:4000/getMessages?getFrom=${id}`,{ headers: {"Authorization": token}});
+    }
+    if(localMessages !== null){
+        console.log('Length',localMessages.length)
+        for(let i=0; i<=localMessages.length-1  ; i++){
+            const child1 = document.createElement('p');
+            console.log(localMessages[i].message);
+            child1.appendChild(document.createTextNode(`${name[0]}:${localMessages[i].message}`));
+            if(i%2 === 0){
+                child1.style.backgroundColor = '#f4f4f4';
+            }else{
+                
+                child1.style.backgroundColor = '#ccc';
+            }
+            msgs.appendChild(child1);
+        }
+    }
+    console.log('chatsfromdb',chatsFromDB);
+    for(let i=0; i<chatsFromDB.data.messages.length; i++){
+        const child1 = document.createElement('p');
+        child1.appendChild(document.createTextNode(`${name[0]}:${chatsFromDB.data.messages[i].message}`));
+        if(i%2 === 0){
+            child1.style.backgroundColor = '#f4f4f4';
+        }else{
+            child1.style.backgroundColor = '#ccc';
+        }
+        msgs.appendChild(child1);
+    }
+})
 
 function parseJwt (token) {
     var base64Url = token.split('.')[1];

@@ -1,8 +1,21 @@
 const Message=require('../models/message');
+const User = require('../models/user');
 const sequelize=require('../util/database');
+const { Op } = require("sequelize");
+
+const getUsers=async(req,res,next)=>{
+    User.findAll()
+    .then((resp)=>{
+        return res.status(201).json({users:resp});
+    })
+    .catch((err)=>{
+        return res.status(400).json({users:'null'});
+    })
+}
 
 const addMessage=async (req,res,next)=>{
     try{
+        console.log('Message Request',req);
         const message=req.body.message;
         console.log(message);
         const response=await Message.create({
@@ -11,7 +24,7 @@ const addMessage=async (req,res,next)=>{
         })
         //.then((response)=>{
             if(response){
-                return res.status(201).json({message:"Message Sent"});
+                return res.status(201).json({message:message});
             }
         }
     catch(err){
@@ -21,8 +34,14 @@ const addMessage=async (req,res,next)=>{
 
 const getMessages=async(req,res,next)=>{
     try{
-        const id=req.user.dataValues.id;
-    const messages=await Message.findAll()
+        const id=req.query.getFrom;
+        //const id=req.user.dataValues.id;
+    const messages=await Message.findAll({where:{
+        id:{
+            [Op.gt]:id
+        }
+    }
+});
     console.log('Messages',messages)
     //.then((messages)=>{
         if(messages){
@@ -35,5 +54,6 @@ const getMessages=async(req,res,next)=>{
 }
 module.exports={
     addMessage,
-    getMessages
+    getMessages,
+    getUsers
 }

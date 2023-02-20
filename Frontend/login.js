@@ -16,7 +16,6 @@ var email=document.getElementById('email');
           localStorage.setItem('token',response.data.token);
           alert(response.data.message);
           window.location.href="file:///E:/Little/GroupChat/Frontend/chats.html";
-
           }
       //.catch((err)=>{
         // else{
