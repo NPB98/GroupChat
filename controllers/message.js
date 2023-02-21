@@ -34,15 +34,15 @@ const addMessage=async (req,res,next)=>{
 
 const getMessages=async(req,res,next)=>{
     try{
-        const id=req.query.getFrom;
-        //const id=req.user.dataValues.id;
-    const messages=await Message.findAll({where:{
-        id:{
+        const id=req.user.dataValues.id;
+        const messages=await Message.findAll( 
+    {where:{
+       id:{
             [Op.gt]:id
         }
     }
-});
-    console.log('Messages',messages)
+})
+    //console.log('Messages',messages)
     //.then((messages)=>{
         if(messages){
             return res.status(201).json({messages:messages});
@@ -52,8 +52,23 @@ const getMessages=async(req,res,next)=>{
         return res.status(500).json({message:err});
     }
 }
+
+const postGroupChat = async(req,res,next)=>{
+    try{
+        const chats = await Message.create({
+            message:req.body.message,
+            userId:req.user.dataValues.id,
+            groupId:req.query.id
+        })
+        res.status(201).json(chats);
+    }
+    catch(error){
+        res.status(404).json(error);
+    }
+};
 module.exports={
     addMessage,
     getMessages,
-    getUsers
+    getUsers,
+    postGroupChat
 }
