@@ -1,6 +1,19 @@
 const Group = require('../models/totalGroups');
 const UserGroup = require('../models/groupDetails');
 const Message = require('../models/message');
+const User=require('../models/user');
+
+exports.getUser=async(req,res,next)=>{
+    try{
+        //console.log('PARAMS',req.query);
+        const users=await User.findByPk(req.query.userId);
+        console.log('USERS',users);
+        res.status(200).json(users);
+    }
+    catch(err){
+        console.log(err);
+    }
+}
 
 exports.createGroup = async(req,res)=>{
     try{
@@ -17,6 +30,17 @@ exports.createGroup = async(req,res)=>{
             userId:req.user.dataValues.id,
             groupId:group.id
         })
+        const usergroup2 = await UserGroup.update(
+            {
+                isAdmin:true,
+            },
+            {
+                where:{
+                    userId:req.user.dataValues.id,
+                    groupId:group.id
+                }
+            }
+        );
         //console.log('asssssssssdagg',usergroup);
         res.status(201).json({message:"successfully created group",group,usergroup});
     }
@@ -41,8 +65,11 @@ exports.getGroup = async(req,res)=>{
 exports.getMessages = async(req,res)=>{
     try{     
         const groupId = req.query.groupId;
-        console.log(groupId);       
-       const messages = await Message.findAll({where:{GroupId:groupId}});
+        //console.log('USER Id',req.user.dataValues.id);
+        //console.log(groupId);       
+       const messages = await Message.findAll({where:
+        {groupId:groupId}
+    });
         res.status(200).json(messages);
     }
     catch(error){
@@ -52,7 +79,7 @@ exports.getMessages = async(req,res)=>{
 
 exports.joinGroup = async(req,res)=>{
     try{    
-        console.log('ASDERFGTTY',req);  
+        //console.log('ASDERFGTTY',req);  
         const id = req.body.id;
        const group =  await UserGroup.create({
             userId:req.user.id,
@@ -74,3 +101,80 @@ exports.getAllGroups = async(req,res)=>{
         res.status(500).json(error);
     }
 }
+
+exports.isAdmin = async(req,res,next)=>{
+    try{    
+        //console.log('REQUESTSSSSSSS',req)
+        console.log(req.user.id);
+    const usergroup = await UserGroup.findAll({
+            where:{
+                userId:req.user.id,
+                isAdmin:'true'
+            }
+        })
+        console.log(usergroup);
+        res.status(200).json(usergroup);
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json(error);
+    }
+}
+
+exports.addUserToGroup = async(req,res,next)=>{   
+    try{
+        const groupId = req.body.groupId;
+        const userId = req.body.userId;
+        console.log(groupId,userId);
+        const usergroup = await UserGroup.create({         
+            userId:userId,
+            groupId:groupId,
+        });
+        res.status(201).json({message:"Successfully added User to Group"},usergroup);
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json(error);
+    }
+};
+
+exports.makeAdmin = async(req,res)=>{   
+    try{      
+        const groupId = req.body.groupId;
+        const userId = req.body.userId;
+        const usergroup = await UserGroup.update(
+            {
+                isAdmin:true,
+            },
+            {
+                where:{
+                    userId:userId,
+                    groupId:groupId
+                }
+            }
+        );
+        res.status(201).json({usergroup,message:"Successfully updated admin in the group"})
+    }
+    catch(error){
+        console.log(error);
+       res.status(500).json(error);
+    }
+};
+
+exports.deleteUser = async(req,res)=>{ 
+    try{
+        const groupId = req.body.groupId;
+        const userId = req.body.userId;       
+        const usergroup = await UserGroup.destroy({
+            where:{
+                userId:userId,
+                groupId:groupId
+            }
+        });     
+        res.status(201).json({usergroup, message:"Successfully deleted user from group"});
+    }
+    catch(error){
+        console.log(error);
+        res.status(500).json(error);
+    }
+};

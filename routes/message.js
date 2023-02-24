@@ -8,5 +8,6 @@ const messageController = require('../controllers/message');
 router.get('/getUsers',messageController.getUsers);
 router.post('/addMessages',userAuthentication.authenticate,messageController.addMessage);
 router.get('/getMessages',userAuthentication.authenticate,messageController.getMessages);
+router.get('/checkIfUserExists',messageController.checkIfUserExists);
 router.post('/addGroupChat',userAuthentication.authenticate,messageController.postGroupChat);
 module.exports=router;

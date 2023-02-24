@@ -1,9 +1,11 @@
+//const jwt = require("jsonwebtoken");
+
 const loggedUsers=document.getElementById('users');
 const msgs=document.getElementById('data');
 const groupMessages=document.getElementById('data1');
 const groupNames=document.getElementById('groups');
 const msg=document.getElementById('message');
-const form=document.getElementById('addForm');
+//console.log(form);
 
 getUserName();
 function getUserName(){
@@ -26,9 +28,8 @@ function getUserName(){
         })
 }
 
-form.addEventListener("submit",addMessage);
-
-function addMessage(e){
+const form=document.getElementById("submit");
+form.onclick=function(e){
     e.preventDefault();
     const message={
         message:msg.value
@@ -51,7 +52,6 @@ function addMessage(e){
         document.body.innerHTML+=`<div class='container'style='color:red'>${err}</div>`;
     })
 }
-
 // window.addEventListener("DOMContentLoaded",(e)=>{
 //     const token=localStorage.getItem('token');
 //     const decodedToken=parseJwt(token);
@@ -159,20 +159,23 @@ window.addEventListener('DOMContentLoaded',async () => {
     msgs.innerHTML = '';
     const token=localStorage.getItem('token');
     const decodedToken=parseJwt(token);
-    const groupId='null'
+    //const groupId='null'
     const messages=await axios.get(`http://localhost:4000/getMessages`,{headers:{'Authorization':token}})
     //.then((messages)=>{
         if(messages){
         const name=decodedToken.name.split(' ');
+        console.log(messages);
+        let count=0;
         for(let i=0;i<messages.data.messages.length;i++){
             console.log(messages.data.messages[i].groupId);
             if(messages.data.messages[i].groupId===null){
+                count++;
                 const child1=document.createElement('p');
             child1.appendChild(document.createTextNode(`${name[0]}:${messages.data.messages[i].message}`));
-            if(i%2 === 0){
-                child1.style.backgroundColor = '#ccc';
-            }else{
+            if(count%2 === 0){
                 child1.style.backgroundColor = '#f4f4f4';
+            }else{
+                child1.style.backgroundColor = '#ccc';
             }
             msgs.appendChild(child1);
             }
@@ -217,15 +220,22 @@ window.addEventListener('DOMContentLoaded',async () => {
 async function getAllMessages(groupId){
     //console.log(groupId);
     try{
+        // while(groupMessages.hasChildNodes()){
+        //     groupMessages.removeChild(groupMessages.firstChild);
+        //   }        
     groupMessages.innerHTML ='';
     const token = localStorage.getItem('token');
     const decodedToken=parseJwt(token); 
-    const name=decodedToken.name.split(' ');  
+    console.log(decodedToken);
+    //decodedToken.name.split(' ');  
     const chats = await axios.get(`http://localhost:4000/getAllMessages?groupId=${groupId}`,{headers: {"Authorization": token}});
-    //console.log(chats);
+    console.log('Chats',chats);
        for(let i=0; i<chats.data.length; i++){       
         const child1 = document.createElement('p');
-        child1.appendChild(document.createTextNode(`${name[0]}:${chats.data[i].message}`));
+        const user=await axios.get(`http://localhost:4000/getUser?userId=${chats.data[i].userId}`);
+        //console.log('ASDDSSSSSSSSSSS',user)
+        const name=user.data.name;
+        child1.appendChild(document.createTextNode(`${name}:${chats.data[i].message}`));
         if(i%2 === 0){
             child1.style.backgroundColor = '#ccc';
         }else{
@@ -233,10 +243,16 @@ async function getAllMessages(groupId){
         }
         groupMessages.appendChild(child1);
     }
+    const user=await axios.get(`http://localhost:4000/checkIfUserExists?userId=${decodedToken.userId}`);
+    console.log('USERS',user);
+    for(let i=0;i<user.data.length;i++){
+    if(user.data[i].groupId===groupId){
+        //console.log('EXISTS');
     const inputMessage = document.getElementById("groupMessage");
     inputMessage.type="text";
     const button = document.getElementById("button");
     button.style.visibility  = "visible";
+    //console.log(inputMessage);
     const form = document.getElementById('addMessageToGroup');
     form.addEventListener('submit',async(e)=>{
             e.preventDefault();         
@@ -247,6 +263,14 @@ async function getAllMessages(groupId){
           console.log(response);
         });
     }
+    // else{
+    //      //const inputMessage = document.getElementById("groupMessage");
+    //        // inputMessage.type="hidden";
+    //     //const button = document.getElementById("button");
+    //         button.style.visibility  = "hidden";
+    //  }
+}
+}
  catch(error){
     console.log(error);
  }
@@ -268,6 +292,34 @@ document.getElementById('createGroup').onclick = function(){
 document.getElementById('joinGroup').onclick = function(){
     window.location.href = './groupJoining.html';
 }
+
+window.addEventListener("DOMContentLoaded",async()=>{  
+    try{
+        const token = localStorage.getItem('token');
+        const response = await axios.get("http://localhost:4000/isAdmin",{headers: {"Authorization": token}});
+        //console.log('response',response);
+        const groups =[];
+        for(let i=0; i<response.data.length; i++){
+            groups.push(response.data[i].groupId);
+        }
+        localStorage.setItem('group',JSON.stringify(groups));
+        if(response.data[0].isAdmin === 'true'){
+            const button = document.getElementById("adminButton");
+            button.style.visibility  = "visible";
+            const form = document.getElementById('adminControl');
+            form.addEventListener("submit",async(e)=>{
+                e.preventDefault();               
+                window.location.href = './admin.html';
+            });
+        }
+    }
+    catch(error){
+        console.log(error);
+    }
+});
+
+
+
 
 
  

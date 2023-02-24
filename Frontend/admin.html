@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <title>Admin</title>
+</head>
+<body>
+    <div class="container">
+        <h3>Admin Powers</h3>
+    </div>
+    <div class="container">
+        <h4>List Of All Users</h4>
+        <ul id="users" class="list-group"></ul>
+       </div>
+    <div class="container">
+        <form id="joinUserByAdmin">
+            <input type="hidden" id="join" name="join" required>
+            <button type="submit" style="visibility:hidden;" class="btn btn-primary" id="button1">Enter the ID Of The User To Be Joined</button>
+        </form>
+    </div>
+    <div class="container">
+        <form id="makeAdminByAdmin">
+            <input type="hidden" id="admin" name="admin" required>
+            <button type="submit" style="visibility:hidden;" class="btn btn-primary" id="button2">Make This User An Admin</button>
+        </form>
+    </div>
+    <div class="container">
+        <form id="deleteUserByAdmin">
+              <input type="hidden" id="delete" name="delete" required>
+              <button type="submit" style="visibility:hidden;" class="btn btn-primary" id="button3">Delete This User</button>
+        </form>
+    </div>
+    <div class="container">
+        <button type="button" class="btn btn-primary" id="btn1">Allow To Join</button>
+        <button type="button" class="btn btn-primary" id="btn2">Allow To Become Admin</button>
+        <button type="button" class="btn btn-primary" id="btn3">Delete From Group</button>
+    </div>
+    <script src ="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+    <script src="./admin.js"></script>
+</body>
+</html>

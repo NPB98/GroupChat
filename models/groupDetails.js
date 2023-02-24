@@ -9,6 +9,7 @@ const usersInGroup = sequelize.define('groupDetails',{
         allowNull:false,
         primaryKey:true
     },
+    isAdmin:Sequelize.STRING
 });
 
 module.exports = usersInGroup;

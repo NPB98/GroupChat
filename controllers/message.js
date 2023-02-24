@@ -2,6 +2,7 @@ const Message=require('../models/message');
 const User = require('../models/user');
 const sequelize=require('../util/database');
 const { Op } = require("sequelize");
+const UserGroup = require('../models/groupDetails');
 
 const getUsers=async(req,res,next)=>{
     User.findAll()
@@ -35,13 +36,7 @@ const addMessage=async (req,res,next)=>{
 const getMessages=async(req,res,next)=>{
     try{
         const id=req.user.dataValues.id;
-        const messages=await Message.findAll( 
-    {where:{
-       id:{
-            [Op.gt]:id
-        }
-    }
-})
+        const messages=await Message.findAll({where:{userId:id}});
     //console.log('Messages',messages)
     //.then((messages)=>{
         if(messages){
@@ -66,9 +61,15 @@ const postGroupChat = async(req,res,next)=>{
         res.status(404).json(error);
     }
 };
+
+const checkIfUserExists=async(req,res,next)=>{
+    const check=await UserGroup.findAll({where:{userId:req.query.userId}});
+    res.status(200).json(check);
+}
 module.exports={
     addMessage,
     getMessages,
     getUsers,
-    postGroupChat
+    postGroupChat,
+    checkIfUserExists
 }
