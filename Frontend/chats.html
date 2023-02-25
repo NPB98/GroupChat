@@ -33,6 +33,14 @@
     </form></div>
     <br><br>
     <div class="container">
+    <form id="downloadFacilityPersonal">
+        <label for="myfile">Personal File:</label>
+       <input type="file" id="myfile" name="myfile" required>
+       <button type="submit" class="btn btn-primary">Add Personal File</button>
+    </form>
+  </div>
+  <br><br>
+    <div class="container">
     <button type="button" id="createGroup">Create group</button>
     <button type="button" id="joinGroup">Join group</button>
     </div>
@@ -43,7 +51,16 @@
     <input type="hidden" id="groupMessage" name="Chat" required>
     <button type="submit" style="visibility:hidden;" class="btn btn-primary" id="button">Send Message To Group</button>
 </form>
+<br><br>
 </div>
+<div class="container">
+<form id="downloadFacilityGroup">
+  Group File:
+  <input type="hidden" id="groupFile" name="groupfile" required>
+  <button type="submit" style="visibility:hidden;" class="btn btn-primary" id="button12">Add Group File</button>
+  </div>
+  <br><br>
+</form>
 <div class="container">
 <form id="adminControl">
   <button type="submit" style="visibility:hidden;" class="btn btn-primary" id="adminButton">GroupAdmin</button>

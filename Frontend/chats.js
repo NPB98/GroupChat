@@ -161,10 +161,12 @@ window.addEventListener('DOMContentLoaded',async () => {
     const decodedToken=parseJwt(token);
     //const groupId='null'
     const messages=await axios.get(`http://localhost:4000/getMessages`,{headers:{'Authorization':token}})
+    const files = await axios.get("http://localhost:4000/getFiles",{ headers: {"Authorization": token}});
+    console.log('FILES',files);
     //.then((messages)=>{
         if(messages){
         const name=decodedToken.name.split(' ');
-        console.log(messages);
+        //console.log(messages);
         let count=0;
         for(let i=0;i<messages.data.messages.length;i++){
             console.log(messages.data.messages[i].groupId);
@@ -188,6 +190,33 @@ window.addEventListener('DOMContentLoaded',async () => {
             // }
             // msgs.appendChild(child1);
         }
+    }
+    // for(let i=0;i<files.data.length;i++){
+    //     console.log(files.data[i].groupId);
+    //     if(messages.data.messages[i].groupId===null){
+    //         count++;
+    //         const child1=document.createElement('p');
+    //     child1.appendChild(document.createTextNode(`${name[0]}:${messages.data.messages[i].message}`));
+    //     if(count%2 === 0){
+    //         child1.style.backgroundColor = '#f4f4f4';
+    //     }else{
+    //         child1.style.backgroundColor = '#ccc';
+    //     }
+    //     msgs.appendChild(child1);
+    //     }
+    console.log('Length',files.data.length);
+    for(let i=0; i<files.data.length; i++){
+        console.log('FILES',files.data[i].fileId);
+        let fileNames=await axios.get(`http://localhost:4000/getFileNames?fileId=${files.data[i].fileId}`,{ headers: {"Authorization": token}});
+        
+        // for(let j=0;j<fileNames.data.length;j++){
+        const anchor = document.createElement('A');
+        const t = document.createTextNode(`${fileNames.data[0].files}`);
+        anchor.setAttribute("href",fileNames.data[0].files);
+        anchor.appendChild(t);
+        anchor.style.backgroundColor = '#f4f4f4';
+        msgs.appendChild(anchor);
+        //}
     }
 }
     catch(error){
@@ -229,7 +258,8 @@ async function getAllMessages(groupId){
     console.log(decodedToken);
     //decodedToken.name.split(' ');  
     const chats = await axios.get(`http://localhost:4000/getAllMessages?groupId=${groupId}`,{headers: {"Authorization": token}});
-    console.log('Chats',chats);
+    const groupAllFiles = await axios.get(`http://localhost:4000/getAllFiles?groupId=${groupId}`,{headers: {"Authorization": token}});
+    console.log('Chats',groupAllFiles);
        for(let i=0; i<chats.data.length; i++){       
         const child1 = document.createElement('p');
         const user=await axios.get(`http://localhost:4000/getUser?userId=${chats.data[i].userId}`);
@@ -243,6 +273,14 @@ async function getAllMessages(groupId){
         }
         groupMessages.appendChild(child1);
     }
+    for(let i=0; i<groupAllFiles.data.length; i++){
+        const anchor = document.createElement('A');
+        const t = document.createTextNode(`${groupAllFiles.data[i].files}`);
+        anchor.setAttribute("href",groupAllFiles.data[i].files);
+        anchor.appendChild(t);
+        anchor.style.backgroundColor = '#f4f4f4';
+        groupMessages.appendChild(anchor);
+    }
     const user=await axios.get(`http://localhost:4000/checkIfUserExists?userId=${decodedToken.userId}`);
     console.log('USERS',user);
     for(let i=0;i<user.data.length;i++){
@@ -252,6 +290,10 @@ async function getAllMessages(groupId){
     inputMessage.type="text";
     const button = document.getElementById("button");
     button.style.visibility  = "visible";
+    const input1 = document.getElementById("groupFile");
+    input1.type = "file";
+    const button12 = document.getElementById("button12");
+    button12.style.visibility = "visible";
     //console.log(inputMessage);
     const form = document.getElementById('addMessageToGroup');
     form.addEventListener('submit',async(e)=>{
@@ -261,6 +303,16 @@ async function getAllMessages(groupId){
             }
           const response = await axios.post(`http://localhost:4000/addGroupChat?id=${groupId}`,obj, {headers: {"Authorization": token}})
           console.log(response);
+        });
+        const form3=document.getElementById('downloadFacilityGroup');
+        const groupFile=document.getElementById('groupFile')
+        form3.addEventListener("submit",async(e)=>{
+            e.preventDefault();
+            const groupfile = groupFile.value;
+            const obj1 = {
+                groupfile:groupfile
+            }
+        const response = await axios.post(`http://localhost:4000/uploadGroupFile?id=${groupId}`,obj1,{headers: {"Authorization": token}})
         });
     }
     // else{
@@ -316,6 +368,19 @@ window.addEventListener("DOMContentLoaded",async()=>{
     catch(error){
         console.log(error);
     }
+});
+
+const form1 = document.getElementById('downloadFacilityPersonal');
+const myfile=document.getElementById('myfile')
+form1.addEventListener('submit',async(e)=>{
+    const token = localStorage.getItem('token');
+    e.preventDefault();
+    //const file = document.getElementById('myfile').FILES[0].NAME;
+    //console.log(file);
+    const obj = {
+        file:myfile.value
+    }
+    await axios.post("http://localhost:4000/uploadFile",obj,{headers: {"Authorization": token}});
 });
 
 
