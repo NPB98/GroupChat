@@ -34,6 +34,7 @@ Message.belongsTo(Group);
 User.belongsToMany(Group,{ through: GroupDetails });
 Group.belongsToMany(User,{ through: GroupDetails });
 
+
 sequelize.sync()
 .then(result =>app.listen(4000))
 .catch(err => console.log(err));
